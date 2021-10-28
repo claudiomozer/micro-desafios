@@ -14,7 +14,7 @@ async function bootstrap() {
     options: {
       urls: [amqpUrl],
       noAck: false,
-      queue: 'admin-backend'
+      queue: 'desafios'
     }
   });
 

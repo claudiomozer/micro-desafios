@@ -1,6 +1,6 @@
 import { DesafioStatus } from "./desafio-status.enum";
 
-export interface Desafio
+export interface Desafio extends Document
 {
     dataHoraDesafio: Date,
     status: DesafioStatus,
