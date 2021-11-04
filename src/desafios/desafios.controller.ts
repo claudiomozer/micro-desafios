@@ -74,4 +74,18 @@ export class DesafiosController
             await channel.ack(originalMessage);
         }
     }
+
+    @EventPattern('deletar-desafio')
+    async deleteDesafios(
+        @Payload() id: string,
+        @Ctx() context: RmqContext
+    ) {
+        const channel = context.getChannelRef();
+        const originalMessage = context.getMessage();
+        try {
+            await this.desafiosService.deletarDesafio(id);
+        } finally {
+            await channel.ack(originalMessage);
+        }
+    }
 }

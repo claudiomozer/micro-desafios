@@ -63,4 +63,9 @@ export class DesafiosService
             {$set: payload.desafio}
         ).exec();
     }
+
+    async deletarDesafio(id: string) : Promise<void>
+    {
+        await this.desafioModel.deleteOne({ _id: id }).exec();
+    }
 }
