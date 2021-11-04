@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { DesafioStatus } from './interfaces/desafio-status.enum';
 import { Desafio } from './interfaces/desafio.interface';
 
 @Injectable()
@@ -16,8 +17,8 @@ export class DesafiosService
 
     async criarDesafio(desafio: Desafio) {
         try {
+            desafio.status = DesafioStatus.PENDENTE;
             const desafioNovo = new this.desafioModel(desafio);
-            console.log(desafioNovo)
             return await desafioNovo.save();
         } catch (error) {
             this.logger.error(`error: ${JSON.stringify(error.message)}`);
@@ -53,5 +54,13 @@ export class DesafiosService
             this.logger.error(`error: ${JSON.stringify(error.message)}`);
             throw new RpcException(error.message);
         }
+    }
+
+    async atualizarDesafio(payload: any) : Promise<void>
+    {
+        await this.desafioModel.findOneAndUpdate(
+            {_id: payload.id}, 
+            {$set: payload.desafio}
+        ).exec();
     }
 }

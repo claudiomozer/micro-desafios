@@ -60,4 +60,18 @@ export class DesafiosController
             await channel.ack(originalMessage);
         }
     }
+
+    @EventPattern('atualizar-desafio')
+    async updateDesafios(
+        @Payload() payload: any,
+        @Ctx() context: RmqContext
+    ) {
+        const channel = context.getChannelRef();
+        const originalMessage = context.getMessage();
+        try {
+            await this.desafiosService.atualizarDesafio(payload);
+        } finally {
+            await channel.ack(originalMessage);
+        }
+    }
 }
