@@ -1,5 +1,6 @@
 import { Controller, Logger } from '@nestjs/common';
 import { Ctx, EventPattern, MessagePattern, Payload, RmqContext } from '@nestjs/microservices';
+import { PartidasService } from 'src/partidas/partidas.service';
 import { DesafiosService } from './desafios.service';
 import { Desafio } from './interfaces/desafio.interface';
 
@@ -9,11 +10,16 @@ const ackErrors: string[] = ['E11000'];
 export class DesafiosController
 {
     private readonly desafiosService: DesafiosService;
+    private readonly partidasService: PartidasService;
     private logger: Logger = new Logger(DesafiosController.name);
 
-    constructor (desafiosService: DesafiosService)
+    constructor (
+        desafiosService: DesafiosService,
+        partidasService: PartidasService
+    )
     {
         this.desafiosService = desafiosService;
+        this.partidasService = partidasService;
     }
 
     @EventPattern('criar-desafio')
@@ -84,6 +90,21 @@ export class DesafiosController
         const originalMessage = context.getMessage();
         try {
             await this.desafiosService.deletarDesafio(id);
+        } finally {
+            await channel.ack(originalMessage);
+        }
+    }
+
+    @EventPattern('atribuir-partida-desafio')
+    async atribuirPartidaDesafio(
+        @Payload() payload: any,
+        @Ctx() context: RmqContext
+    ) {
+        const channel = context.getChannelRef();
+        const originalMessage = context.getMessage();
+        try {
+            payload.desafio = payload.id;
+            await this.partidasService.criarPartida(payload);
         } finally {
             await channel.ack(originalMessage);
         }
