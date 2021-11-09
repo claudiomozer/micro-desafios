@@ -30,15 +30,16 @@ export class PartidasService
     async criarPartida(partida: Partida)
     {
         try {
-            const novoDesafio = new this.partidaModel(partida);
-            let result = await novoDesafio.save();
             let { desafio } = partida;
-
             const desafioEncontrado = await this.desafioService.consultarDesafiosId(desafio);
+            partida.jogadores = desafioEncontrado.jogadores.map(jogador => jogador.toString());
+            partida.categoria = desafioEncontrado.categoria;
+            const novaPartida = new this.partidaModel(partida);
+            let result = await novaPartida.save();
+
             desafioEncontrado.partida = result._id;
             await this.desafioService.atualizarDesafio({ id: desafioEncontrado._id, desafio: desafioEncontrado })
-
-            return await this.clientRankingService.client().emit('processar-partida', {idPartida: result._id, partida: partida});
+            return await this.clientRankingService.client().emit('processar-partida', {idPartida: result._id, partida});
         } catch (ex) {
             this.logger.log(`error: ${JSON.stringify(ex.message)}`);
             throw new RpcException(ex.message);

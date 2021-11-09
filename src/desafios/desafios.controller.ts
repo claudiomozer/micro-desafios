@@ -103,8 +103,8 @@ export class DesafiosController
         const channel = context.getChannelRef();
         const originalMessage = context.getMessage();
         try {
-            payload.desafio = payload.id;
-            await this.partidasService.criarPartida(payload);
+            payload.partida.desafio = payload.id;
+            await this.partidasService.criarPartida(payload.partida);
         } finally {
             await channel.ack(originalMessage);
         }

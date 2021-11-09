@@ -20,7 +20,7 @@ export class ClientRankingService
           transport: Transport.RMQ,
           options:{
             urls: [amqpUrl],
-            queue: 'ranking'
+            queue: 'rankings'
           }
         });
     }
