@@ -1,6 +1,7 @@
 import { Transport } from '@nestjs/microservices';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import * as momentTimezone from 'moment-timezone';
 
 let amqpUrl = 'amqp://';
 amqpUrl += `${process.env.RABBITMQ_USER}:`;
@@ -17,6 +18,12 @@ async function bootstrap() {
       queue: 'desafios'
     }
   });
+
+  Date.prototype.toJSON = function(): any {
+    return momentTimezone(this)
+      .tz('America/Sao_Paulo')
+      .format('YYYY-MM-DD HH:mm:ss.SSS');
+  }
 
   await app.listen();
 }
