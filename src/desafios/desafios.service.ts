@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DesafioStatus } from './interfaces/desafio-status.enum';
 import { Desafio } from './interfaces/desafio.interface';
+import * as momentTimezone from 'moment-timezone';
 
 @Injectable()
 export class DesafiosService
@@ -68,4 +69,36 @@ export class DesafiosService
     {
         await this.desafioModel.deleteOne({ _id: id }).exec();
     }
+
+    async consultarDesafiosRealizados(idCategoria: string): Promise<Desafio[]> {
+        try {
+            return await this.desafioModel.find()
+            .where('categoria')
+            .equals(idCategoria)
+            .where('status')
+            .equals(DesafioStatus.REALIZADO)
+            .exec();
+        } catch (error) {
+            this.logger.error(`error: ${JSON.stringify(error.message)}`);
+            throw new RpcException(error.message);
+        }
+    }
+
+    async consultarDesafiosRealizadosPelaData(idCategoria: string, dataRef:string): Promise<Desafio[]>
+    {
+        try {
+            const dateRefNew = `${dataRef} 23:59:59.999`;
+            return await this.desafioModel.find()
+            .where('categoria')
+            .equals(idCategoria)
+            .where('status')
+            .equals(DesafioStatus.REALIZADO)
+            .where({ dataHoraDesafio: { $lte: momentTimezone(dateRefNew).tz('UTC').toDate() }})
+            .exec(); 
+        } catch (error) {
+            this.logger.error(`error: ${JSON.stringify(error.message)}`);
+            throw new RpcException(error.message);
+        }
+    }
+    
 }

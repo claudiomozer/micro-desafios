@@ -109,4 +109,24 @@ export class DesafiosController
             await channel.ack(originalMessage);
         }
     }
+
+    @MessagePattern('consultar-desafios-realizados')
+    async consultarDesafiosRealizados(
+        @Payload() payload: any,
+        @Ctx() context: RmqContext
+    ): Promise<Desafio[] | Desafio>
+    {
+        const channel = context.getChannelRef();
+        const originalMessage = context.getMessage();
+
+        try {
+            const {idCategoria, dataRef} = payload;
+            if (dataRef) {
+                return await this.desafiosService.consultarDesafiosRealizadosPelaData(idCategoria, dataRef);
+            }
+            return await this.desafiosService.consultarDesafiosRealizados(idCategoria);
+        } finally {
+            await channel.ack(originalMessage);
+        }
+    }
 }
