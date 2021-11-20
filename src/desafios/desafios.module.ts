@@ -7,6 +7,7 @@ import { PartidasService } from 'src/partidas/partidas.service';
 import { PartidaSchema } from 'src/partidas/interfaces/partida.schema';
 import { ConfigModule } from '@nestjs/config';
 import { ClientRankingService } from 'src/infrastructure/services/client-ranking.service';
+import { ClientNotificacoesService } from 'src/infrastructure/services/client-notificacoes.service';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { ClientRankingService } from 'src/infrastructure/services/client-ranking
     MongooseModule.forFeature([{name: 'Partida', schema: PartidaSchema}]),
     ConfigModule.forRoot()
   ],
-  providers: [DesafiosService, PartidasService, ClientRankingService],
+  providers: [DesafiosService, PartidasService, ClientRankingService, ClientNotificacoesService],
   controllers: [DesafiosController]
 })
 export class DesafiosModule {}

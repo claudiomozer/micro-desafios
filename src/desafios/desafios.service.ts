@@ -5,22 +5,32 @@ import { Model } from 'mongoose';
 import { DesafioStatus } from './interfaces/desafio-status.enum';
 import { Desafio } from './interfaces/desafio.interface';
 import * as momentTimezone from 'moment-timezone';
+import { ClientNotificacoesService } from 'src/infrastructure/services/client-notificacoes.service';
 
 @Injectable()
 export class DesafiosService
 {
     private readonly logger: Logger = new Logger(DesafiosService.name);
     private readonly desafioModel: Model<Desafio>;
+    private readonly clientNotificacoesService: ClientNotificacoesService;
 
-    constructor (@InjectModel('Desafio') desafioModel: Model<Desafio>) {
+    constructor (
+        @InjectModel('Desafio') desafioModel: Model<Desafio>,
+        clientNotificacoesService: ClientNotificacoesService
+    ) {
         this.desafioModel = desafioModel;
+        this.clientNotificacoesService = clientNotificacoesService
     }
 
     async criarDesafio(desafio: Desafio) {
         try {
             desafio.status = DesafioStatus.PENDENTE;
             const desafioNovo = new this.desafioModel(desafio);
-            return await desafioNovo.save();
+            
+            await desafioNovo.save();
+            
+            return await this.clientNotificacoesService.client()
+                .emit('notificacao-novo-desafio', desafio);
         } catch (error) {
             this.logger.error(`error: ${JSON.stringify(error.message)}`);
             throw new RpcException(error.message);
